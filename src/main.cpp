@@ -12,7 +12,6 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include <vector>
 
-
 struct Body
 {
 	Vector2 position;
@@ -27,6 +26,23 @@ struct Body
 float GetRandomFloat()
 {
 	return GetRandomValue(0, 10000) / (float)10000;
+}
+
+void AddForce(Body& body, Vector2 force)
+{
+	body.acceleration += force / body.mass;
+}
+
+void ExplicitEuler(Body& body, float dt)
+{
+	body.position += body.velocity * dt;
+	body.velocity += body.acceleration * dt;
+}
+
+void SemiImplicitEuler(Body& body, float dt)
+{
+	body.velocity += body.acceleration * dt;
+	body.position += body.velocity * dt;
 }
 
 Vector2 gravity{ 0, 9.81f };
@@ -67,20 +83,40 @@ int main ()
 			direction.y = sinf(angle);
 
 			body.velocity = direction * (50.0f + (GetRandomFloat() * 500));
+			body.acceleration = Vector2{ 0, 0 };
 			body.size = 5.0f + (GetRandomFloat() * 20.0f);
 			body.restitution = 0.5f + (GetRandomFloat() * 0.5f);
+			body.mass = 1.0f;
 
 			bodies.push_back(body);
 		}
 
 		// UPDATE
+		for (auto& body : bodies) body.acceleration = Vector2{ 0, 0 };
+		for (auto& body : bodies) AddForce(body, (gravity * 100.0f));
+
+		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+		{
+			Vector2 position = GetMousePosition();
+			for (auto& body : bodies)
+			{
+				Vector2 direction = body.position - position;
+				//Vector2 direction = position - body.position;
+				if (Vector2Length(direction) <= 100.0f)
+				{
+					Vector2 force = Vector2Normalize(direction) * 10000.0f;
+					AddForce(body, force);
+				}
+			}
+
+			DrawCircleLinesV(position, 100, WHITE);
+		}
+
+		for (auto& body : bodies) SemiImplicitEuler(body, dt);
+
+		// collision
 		for (auto& body : bodies)
 		{
-			// integration
-			body.velocity += (gravity * 100.0f) * dt;
-			body.position += body.velocity * dt;
-
-			// collision
 			if (body.position.x + body.size > GetScreenWidth())
 			{
 				body.position.x = GetScreenWidth() - body.size;
