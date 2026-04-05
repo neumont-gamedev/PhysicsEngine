@@ -6,51 +6,21 @@ Use this as a starting point or replace it with your code.
 by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit https://creativecommons.org/publicdomain/zero/1.0/
 */
 
+#include "body.h"
+#include "random.h"
+#include "integrator.h"
+#include "world.h"
+
 #include "raylib.h"
 #include "raymath.h"
 
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include <vector>
 
-struct Body
-{
-	Vector2 position;
-	Vector2 velocity;
-	Vector2 acceleration;
-	float mass;
-	float size;
-	float restitution;
-};
-
-// return 0-1
-float GetRandomFloat()
-{
-	return GetRandomValue(0, 10000) / (float)10000;
-}
-
-void AddForce(Body& body, Vector2 force)
-{
-	body.acceleration += force / body.mass;
-}
-
-void ExplicitEuler(Body& body, float dt)
-{
-	body.position += body.velocity * dt;
-	body.velocity += body.acceleration * dt;
-}
-
-void SemiImplicitEuler(Body& body, float dt)
-{
-	body.velocity += body.acceleration * dt;
-	body.position += body.velocity * dt;
-}
-
-Vector2 gravity{ 0, 9.81f };
-
 int main ()
 {
-	std::vector<Body> bodies;
-	bodies.reserve(1000);
+	World world;
+
 
 	SetRandomSeed(5);
 
@@ -88,57 +58,11 @@ int main ()
 			body.restitution = 0.5f + (GetRandomFloat() * 0.5f);
 			body.mass = 1.0f;
 
-			bodies.push_back(body);
+			world.AddBody(body);
 		}
 
 		// UPDATE
-		for (auto& body : bodies) body.acceleration = Vector2{ 0, 0 };
-		for (auto& body : bodies) AddForce(body, (gravity * 100.0f));
-
-		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
-		{
-			Vector2 position = GetMousePosition();
-			for (auto& body : bodies)
-			{
-				Vector2 direction = body.position - position;
-				//Vector2 direction = position - body.position;
-				if (Vector2Length(direction) <= 100.0f)
-				{
-					Vector2 force = Vector2Normalize(direction) * 10000.0f;
-					AddForce(body, force);
-				}
-			}
-
-			DrawCircleLinesV(position, 100, WHITE);
-		}
-
-		for (auto& body : bodies) SemiImplicitEuler(body, dt);
-
-		// collision
-		for (auto& body : bodies)
-		{
-			if (body.position.x + body.size > GetScreenWidth())
-			{
-				body.position.x = GetScreenWidth() - body.size;
-				body.velocity.x *= -body.restitution;
-			}
-			if (body.position.x - body.size < 0)
-			{
-				body.position.x = body.size;
-				body.velocity.x *= -body.restitution;
-			}
-			if (body.position.y + body.size > GetScreenHeight())
-			{
-				body.position.y = GetScreenHeight() - body.size;
-				body.velocity.y *= -body.restitution;
-			}
-			//if (body.position.y - body.size < 0)
-			//{
-			//	body.position.y = body.size;
-			//	body.velocity.y *= -body.restitution;
-			//}
-		}
-
+		world.Step(dt);
 
 		// DRAW
 		BeginDrawing();
@@ -152,11 +76,8 @@ int main ()
 		// draw our texture to the screen
 		DrawTexture(wabbit, 400, 200, WHITE);
 
-		for (const auto& body : bodies)
-		{
-			DrawCircleV(body.position, body.size, RED);
-		}
-				
+		world.Draw();
+						
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
 		EndDrawing();
 	}

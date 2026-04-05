@@ -1,0 +1,14 @@
+#pragma once
+#include "body.h"
+
+inline void ExplicitEuler(Body& body, float dt)
+{
+	body.position += body.velocity * dt;
+	body.velocity += body.acceleration * dt;
+}
+
+inline void SemiImplicitEuler(Body& body, float dt)
+{
+	body.velocity += body.acceleration * dt;
+	body.position += body.velocity * dt;
+}
