@@ -14,6 +14,7 @@ public:
 	void Draw();
 
 	void AddBody(const Body& body);
+	void AddEffector(class Effector* effector);
 
 	std::vector<Body>& GetBodies() { return bodies; }
 	const std::vector<Body>& GetBodies() const { return bodies; }
@@ -23,5 +24,7 @@ private:
 
 private:
 	static Vector2 gravity;
+
 	std::vector<Body> bodies;
+	std::vector<class Effector*> effectors;
 };

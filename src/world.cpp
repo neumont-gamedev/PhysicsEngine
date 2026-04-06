@@ -1,16 +1,18 @@
-#include "World.h"
+#include "world.h"
 #include "integrator.h"
+#include "effector.h"
 
 Vector2 World::gravity = { 0, 9.8f };
 
 void World::Step(float dt)
 {
 	// reset acceleration
-	for (auto& body : bodies) body.acceleration = Vector2{ 0, 0 };
-	// add gravity
-	for (auto& body : bodies) body.AddForce(gravity * 100.0f);
+	for (auto& body : bodies) body.acceleration = gravity * body.gravityScale * 100.0f;
 
 	// force effector
+	for (auto& effector : effectors) effector->Apply(bodies);
+
+	/*
 	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 	{
 		Vector2 position = GetMousePosition();
@@ -27,7 +29,7 @@ void World::Step(float dt)
 
 		DrawCircleLinesV(position, 100, WHITE);
 	}
-
+	*/
 	// integrator
 	for (auto& body : bodies) SemiImplicitEuler(body, dt);
 	UpdateCollision();
@@ -36,6 +38,7 @@ void World::Step(float dt)
 void World::Draw()
 {
 	for (const auto& body : bodies) body.Draw();
+	for (auto& effector : effectors) effector->Draw();
 }
 
 void World::UpdateCollision()
@@ -69,4 +72,9 @@ void World::UpdateCollision()
 void World::AddBody(const Body& body)
 {
 	bodies.push_back(body);
+}
+
+void World::AddEffector(Effector* effector)
+{
+	effectors.push_back(effector);
 }

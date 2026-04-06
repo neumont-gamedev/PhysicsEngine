@@ -10,16 +10,17 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "random.h"
 #include "integrator.h"
 #include "world.h"
+#include "point_effector.h"
 
 #include "raylib.h"
 #include "raymath.h"
 
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include <vector>
+#include <string>
 
 int main ()
 {
-	World world;
 
 
 	SetRandomSeed(5);
@@ -35,6 +36,16 @@ int main ()
 
 	// Load a texture from the resources directory
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
+
+
+	//SetTargetFPS(10);
+
+	World world;
+	world.AddEffector(new PointEffector(Vector2{ 200, 200 }, 100,  30000.0f));
+	world.AddEffector(new PointEffector(Vector2{ 600, 600 }, 100, -30000.0f));
+
+	float timeAccum = 0.0f;
+	float fixedTimeStep = 1.0f / 60.0f; // 0.016 * 60.0 = 1.0
 	
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
@@ -57,12 +68,19 @@ int main ()
 			body.size = 5.0f + (GetRandomFloat() * 20.0f);
 			body.restitution = 0.5f + (GetRandomFloat() * 0.5f);
 			body.mass = 1.0f;
+			body.gravityScale = 1.0f;
+			//body.damping = 4.5f;
 
 			world.AddBody(body);
 		}
 
 		// UPDATE
-		world.Step(dt);
+		timeAccum += dt;
+		while (timeAccum > fixedTimeStep)
+		{
+			world.Step(fixedTimeStep);
+			timeAccum -= fixedTimeStep;
+		}
 
 		// DRAW
 		BeginDrawing();
@@ -71,10 +89,12 @@ int main ()
 		ClearBackground(BLACK);
 
 		// draw some text using the default font
-		DrawText("Hello Raylib", 200,200,20,WHITE);
+		std::string fpsText = "FPS: ";
+		fpsText += std::to_string(GetFPS());
+		DrawText(fpsText.c_str(), 40, 40, 20, WHITE);
 
 		// draw our texture to the screen
-		DrawTexture(wabbit, 400, 200, WHITE);
+		//DrawTexture(wabbit, 400, 200, WHITE);
 
 		world.Draw();
 						
