@@ -36,6 +36,9 @@
     <ClInclude Include="src\point_effector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\gravitation_effector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -44,10 +47,13 @@
     <ClCompile Include="src\body.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\world.cpp">
+    <ClCompile Include="src\point_effector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\point_effector.cpp">
+    <ClCompile Include="src\gravitation_effector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\world.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

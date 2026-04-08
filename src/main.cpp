@@ -11,6 +11,7 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "integrator.h"
 #include "world.h"
 #include "point_effector.h"
+#include "gravitation_effector.h"
 
 #include "raylib.h"
 #include "raymath.h"
@@ -41,8 +42,9 @@ int main ()
 	//SetTargetFPS(10);
 
 	World world;
-	world.AddEffector(new PointEffector(Vector2{ 200, 200 }, 100,  30000.0f));
-	world.AddEffector(new PointEffector(Vector2{ 600, 600 }, 100, -30000.0f));
+	//world.AddEffector(new PointEffector(Vector2{ 200, 200 }, 100,  30000.0f));
+	//world.AddEffector(new PointEffector(Vector2{ 600, 600 }, 100, -30000.0f));
+	//world.AddEffector(new GravitationEffector(10000.0f));
 
 	float timeAccum = 0.0f;
 	float fixedTimeStep = 1.0f / 60.0f; // 0.016 * 60.0 = 1.0
@@ -56,6 +58,9 @@ int main ()
 		   (IsKeyDown(KEY_LEFT_CONTROL) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)))
 		{
 			Body body;
+
+			body.bodyType = (IsKeyDown(KEY_LEFT_ALT)) ? BodyType::Static : BodyType::Dynamic;
+
 			body.position = GetMousePosition();
 			// get random unit circle vector
 			float angle = GetRandomFloat() * (2 * PI);
@@ -63,13 +68,14 @@ int main ()
 			direction.x = cosf(angle);
 			direction.y = sinf(angle);
 
-			body.velocity = direction * (50.0f + (GetRandomFloat() * 500));
-			body.acceleration = Vector2{ 0, 0 };
-			body.size = 5.0f + (GetRandomFloat() * 20.0f);
+			body.AddForce(direction * (50.0f + (GetRandomFloat() * 500)) * 0.001f, ForceMode::VelocityChange);
+			
+			body.size = 5.0f + (GetRandomFloat() * 30.0f);
 			body.restitution = 0.5f + (GetRandomFloat() * 0.5f);
-			body.mass = 1.0f;
-			body.gravityScale = 1.0f;
-			//body.damping = 4.5f;
+			body.mass = body.size;
+			body.inverseMass = (body.bodyType == BodyType::Static) ? 0 : 1.0f / body.mass;
+			body.gravityScale = 0.0f;
+			body.damping = 0.1f;
 
 			world.AddBody(body);
 		}

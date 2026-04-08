@@ -7,31 +7,14 @@ Vector2 World::gravity = { 0, 9.8f };
 void World::Step(float dt)
 {
 	// reset acceleration
-	for (auto& body : bodies) body.acceleration = gravity * body.gravityScale * 100.0f;
+	for (auto& body : bodies) body.acceleration = Vector2{ 0, 0 };
+	for (auto& body : bodies) body.AddForce(gravity * body.gravityScale * 100.0f, ForceMode::Acceleration);
 
 	// force effector
 	for (auto& effector : effectors) effector->Apply(bodies);
 
-	/*
-	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
-	{
-		Vector2 position = GetMousePosition();
-		for (auto& body : bodies)
-		{
-			Vector2 direction = body.position - position;
-			//Vector2 direction = position - body.position;
-			if (Vector2Length(direction) <= 100.0f)
-			{
-				Vector2 force = Vector2Normalize(direction) * 10000.0f;
-				body.AddForce(force);
-			}
-		}
-
-		DrawCircleLinesV(position, 100, WHITE);
-	}
-	*/
 	// integrator
-	for (auto& body : bodies) SemiImplicitEuler(body, dt);
+	for (auto& body : bodies) if (body.bodyType == BodyType::Dynamic) SemiImplicitEuler(body, dt);
 	UpdateCollision();
 }
 
@@ -61,11 +44,11 @@ void World::UpdateCollision()
 			body.position.y = GetScreenHeight() - body.size;
 			body.velocity.y *= -body.restitution;
 		}
-		//if (body.position.y - body.size < 0)
-		//{
-		//	body.position.y = body.size;
-		//	body.velocity.y *= -body.restitution;
-		//}
+		if (body.position.y - body.size < 0)
+		{
+			body.position.y = body.size;
+			body.velocity.y *= -body.restitution;
+		}
 	}
 }
 
