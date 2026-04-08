@@ -39,6 +39,9 @@
     <ClInclude Include="src\gravitation_effector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\collision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -53,11 +56,11 @@
     <ClCompile Include="src\gravitation_effector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\point_effector.cpp">
+    <ClCompile Include="src\world.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\world.cpp">
-      <Filter>Windows Resource Files</Filter>
+    <ClCompile Include="src\collision.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

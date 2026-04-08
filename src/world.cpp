@@ -26,6 +26,10 @@ void World::Draw()
 
 void World::UpdateCollision()
 {
+	contacts.clear();
+	CreateContacts(bodies, contacts);
+	SeparateContacts(contacts);
+
 	// collision
 	for (auto& body : bodies)
 	{
