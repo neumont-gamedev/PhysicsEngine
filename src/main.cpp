@@ -68,7 +68,7 @@ int main ()
 			direction.x = cosf(angle);
 			direction.y = sinf(angle);
 
-			body.AddForce(direction * (50.0f + (GetRandomFloat() * 500)) * 0.001f, ForceMode::VelocityChange);
+			body.AddForce(direction * (50.0f + (GetRandomFloat() * 500)), ForceMode::VelocityChange);
 			
 			body.size = 5.0f + (GetRandomFloat() * 30.0f);
 			body.restitution = 0.5f + (GetRandomFloat() * 0.5f);
