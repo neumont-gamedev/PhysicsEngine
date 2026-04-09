@@ -44,7 +44,7 @@ int main ()
 	World world;
 	//world.AddEffector(new PointEffector(Vector2{ 200, 200 }, 100,  30000.0f));
 	//world.AddEffector(new PointEffector(Vector2{ 600, 600 }, 100, -30000.0f));
-	//world.AddEffector(new GravitationEffector(10000.0f));
+	//world.AddEffector(new GravitationEffector(1000.0f));
 
 	float timeAccum = 0.0f;
 	float fixedTimeStep = 1.0f / 60.0f; // 0.016 * 60.0 = 1.0

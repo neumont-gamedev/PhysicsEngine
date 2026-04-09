@@ -3,10 +3,10 @@
 
 bool Intersects(const Body& bodyA, const Body& bodyB)
 {
-	float distance = Vector2Distance(bodyA.position, bodyB.position);
+	float distanceSqr = Vector2DistanceSqr(bodyA.position, bodyB.position);
 	float radius = bodyA.size + bodyB.size;
 
-	return (distance <= radius);
+	return (distanceSqr <= (radius * radius));
 }
 
 void CreateContacts(std::vector<Body>& bodies, std::vector<Contact>& contacts)
@@ -38,6 +38,7 @@ void CreateContacts(std::vector<Body>& bodies, std::vector<Contact>& contacts)
 				float radius = bodyA.size + bodyB.size;
 				contact.depth = radius - distance;
 				contact.normal = Vector2Normalize(direction);
+				contact.restitution = (bodyA.restitution + bodyB.restitution) * 0.5f;
 
 				contacts.push_back(contact);
 			}
