@@ -22,8 +22,6 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 
 int main ()
 {
-
-
 	SetRandomSeed(5);
 
 	// Tell the window to use vsync and work on high DPI displays
@@ -43,16 +41,17 @@ int main ()
 
 	World world;
 	//world.AddEffector(new PointEffector(Vector2{ 200, 200 }, 100,  30000.0f));
-	//world.AddEffector(new PointEffector(Vector2{ 600, 600 }, 100, -30000.0f));
-	//world.AddEffector(new GravitationEffector(1000.0f));
+	world.AddEffector(new PointEffector(Vector2{ 300, 300 }, 200, -30000.0f));
+	world.AddEffector(new GravitationEffector(Vector2{ 900, 600 }, 200, 30000.0f));
 
 	float timeAccum = 0.0f;
 	float fixedTimeStep = 1.0f / 60.0f; // 0.016 * 60.0 = 1.0
-	
+	bool simulate = true;
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
 	{
-		float dt = GetFrameTime();
+		float dt = fminf(GetFrameTime(), 0.1f);
+		if (IsKeyPressed(KEY_SPACE)) simulate = !simulate;
 
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || 
 		   (IsKeyDown(KEY_LEFT_CONTROL) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)))
@@ -81,11 +80,14 @@ int main ()
 		}
 
 		// UPDATE
-		timeAccum += dt;
-		while (timeAccum > fixedTimeStep)
+		if (simulate)
 		{
-			world.Step(fixedTimeStep);
-			timeAccum -= fixedTimeStep;
+			timeAccum += dt;
+			while (timeAccum > fixedTimeStep)
+			{
+				world.Step(fixedTimeStep);
+				timeAccum -= fixedTimeStep;
+			}
 		}
 
 		// DRAW

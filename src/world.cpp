@@ -15,7 +15,7 @@ void World::Step(float dt)
 
 	// integrator
 	for (auto& body : bodies) if (body.bodyType == BodyType::Dynamic) SemiImplicitEuler(body, dt);
-	UpdateCollision();
+	for (int i = 0; i < 4; i++) UpdateCollision();
 }
 
 void World::Draw()
