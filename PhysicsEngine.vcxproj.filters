@@ -42,6 +42,12 @@
     <ClInclude Include="src\collision.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\drag_effector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\area_effector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -63,6 +69,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\effector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\drag_effector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\area_effector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

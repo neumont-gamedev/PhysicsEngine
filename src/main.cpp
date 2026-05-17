@@ -12,6 +12,8 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "world.h"
 #include "point_effector.h"
 #include "gravitation_effector.h"
+#include "area_effector.h"
+#include "drag_effector.h"
 
 #include "raylib.h"
 #include "raymath.h"
@@ -40,8 +42,10 @@ int main ()
 	//SetTargetFPS(10);
 
 	World world;
-	//world.AddEffector(new PointEffector(Vector2{ 200, 200 }, 100,  30000.0f));
-	world.AddEffector(new PointEffector(Vector2{ 300, 300 }, 200, -30000.0f));
+
+	world.AddEffector(new PointEffector(Vector2{ 300, 200 }, 200, -30000.0f));
+	world.AddEffector(new DragEffector(Vector2{ 300, 600 }, 200, 40.0f));
+	world.AddEffector(new AreaEffector(Vector2{ 900, 200 }, 200, 0,30000.0f));
 	world.AddEffector(new GravitationEffector(Vector2{ 900, 600 }, 200, 30000.0f));
 
 	float timeAccum = 0.0f;
@@ -94,7 +98,7 @@ int main ()
 		BeginDrawing();
 
 		// Setup the back buffer for drawing (clear color and depth buffers)
-		ClearBackground(BLACK);
+		ClearBackground(WHITE);
 
 		// draw some text using the default font
 		std::string fpsText = "FPS: ";

@@ -9,6 +9,7 @@ public:
 		strength{ strength } {}
 
 	void Apply(std::vector<Body>& bodies) override;
+	void Draw() override;
 
 private:
 	float strength = 10.0f;

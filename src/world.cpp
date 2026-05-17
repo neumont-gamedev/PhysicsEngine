@@ -20,8 +20,8 @@ void World::Step(float dt)
 
 void World::Draw()
 {
-	for (const auto& body : bodies) body.Draw();
 	for (auto& effector : effectors) effector->Draw();
+	for (const auto& body : bodies) body.Draw();
 }
 
 void World::UpdateCollision()
