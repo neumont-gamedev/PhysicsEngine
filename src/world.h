@@ -20,6 +20,8 @@ public:
 	std::vector<Body>& GetBodies() { return bodies; }
 	const std::vector<Body>& GetBodies() const { return bodies; }
 
+	static void SetGravity(Vector2 newgravity) { gravity = newgravity; }
+
 private:
 	void UpdateCollision();
 

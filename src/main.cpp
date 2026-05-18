@@ -18,9 +18,20 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "raylib.h"
 #include "raymath.h"
 
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+#define GUI_PHYSICS_IMPLEMENTATION
+#pragma warning(push)
+#pragma warning(disable: 4576)
+#include "gui_physics.h"
+#pragma warning(pop)
+
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include <vector>
 #include <string>
+
+GuiPhysicsState state;
+//GuiLoadStyle("raygui/styles/jungle/style_jungle.rgs");
 
 int main ()
 {
@@ -30,16 +41,16 @@ int main ()
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
 	// Create the window and OpenGL context
-	InitWindow(1280, 800, "Hello Raylib");
+	InitWindow(1280, 720, "Physics Engine");
+
+	// Get GUI state
+	state = InitGuiPhysics();
 
 	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
 	SearchAndSetResourceDir("resources");
 
 	// Load a texture from the resources directory
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
-
-
-	//SetTargetFPS(10);
 
 	World world;
 
@@ -55,14 +66,17 @@ int main ()
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
 	{
 		float dt = fminf(GetFrameTime(), 0.1f);
-		if (IsKeyPressed(KEY_SPACE)) simulate = !simulate;
+
+		// update gui input
+		if (IsKeyPressed(KEY_SPACE)) state.SimulateActive = !state.SimulateActive;
+		World::SetGravity(Vector2{ 0.0f, state.GravityValue });
 
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || 
 		   (IsKeyDown(KEY_LEFT_CONTROL) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)))
 		{
 			Body body;
 
-			body.bodyType = (IsKeyDown(KEY_LEFT_ALT)) ? BodyType::Static : BodyType::Dynamic;
+			body.bodyType = (BodyType)state.BodyTypeActive;//(IsKeyDown(KEY_LEFT_ALT)) ? BodyType::Static : BodyType::Dynamic;
 
 			body.position = GetMousePosition();
 			// get random unit circle vector
@@ -77,14 +91,14 @@ int main ()
 			body.restitution = 0.5f + (GetRandomFloat() * 0.5f);
 			body.mass = body.size;
 			body.inverseMass = (body.bodyType == BodyType::Static) ? 0 : 1.0f / body.mass;
-			body.gravityScale = 0.0f;
+			body.gravityScale = 1.0f;
 			body.damping = 0.1f;
 
 			world.AddBody(body);
 		}
 
 		// UPDATE
-		if (simulate)
+		if (state.SimulateActive)
 		{
 			timeAccum += dt;
 			while (timeAccum > fixedTimeStep)
@@ -105,11 +119,10 @@ int main ()
 		fpsText += std::to_string(GetFPS());
 		DrawText(fpsText.c_str(), 40, 40, 20, WHITE);
 
-		// draw our texture to the screen
-		//DrawTexture(wabbit, 400, 200, WHITE);
-
 		world.Draw();
-						
+
+		GuiPhysics(&state);
+
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
 		EndDrawing();
 	}
