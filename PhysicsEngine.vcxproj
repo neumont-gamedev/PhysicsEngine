@@ -313,6 +313,7 @@
     <ClInclude Include="src\point_effector.h" />
     <ClInclude Include="src\random.h" />
     <ClInclude Include="src\raygui.h" />
+    <ClInclude Include="src\spring.h" />
     <ClInclude Include="src\world.h" />
   </ItemGroup>
   <ItemGroup>
@@ -324,6 +325,7 @@
     <ClCompile Include="src\gravitation_effector.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\point_effector.cpp" />
+    <ClCompile Include="src\spring.cpp" />
     <ClCompile Include="src\world.cpp" />
   </ItemGroup>
   <ItemGroup>

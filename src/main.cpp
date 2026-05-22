@@ -33,6 +33,9 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 GuiPhysicsState state;
 //GuiLoadStyle("raygui/styles/jungle/style_jungle.rgs");
 
+void AddBody(World& world);
+void AddEffector(World& world);
+
 int main ()
 {
 	SetRandomSeed(5);
@@ -54,47 +57,34 @@ int main ()
 
 	World world;
 
-	world.AddEffector(new PointEffector(Vector2{ 300, 200 }, 200, -30000.0f));
-	world.AddEffector(new DragEffector(Vector2{ 300, 600 }, 200, 40.0f));
-	world.AddEffector(new AreaEffector(Vector2{ 900, 200 }, 200, 0,30000.0f));
-	world.AddEffector(new GravitationEffector(Vector2{ 900, 600 }, 200, 30000.0f));
 
 	float timeAccum = 0.0f;
-	float fixedTimeStep = 1.0f / 60.0f; // 0.016 * 60.0 = 1.0
 	bool simulate = true;
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
 	{
 		float dt = fminf(GetFrameTime(), 0.1f);
+		float fixedTimeStep = 1.0f / state.FPSValue; // 0.016 * 60.0 = 1.0
 
 		// update gui input
 		if (IsKeyPressed(KEY_SPACE)) state.SimulateActive = !state.SimulateActive;
+		if (IsKeyPressed(KEY_TAB)) state.PhysicsPanelActive = !state.PhysicsPanelActive;
+
 		World::SetGravity(Vector2{ 0.0f, state.GravityValue });
 
-		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || 
-		   (IsKeyDown(KEY_LEFT_CONTROL) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)))
+		bool mouseOverGui = state.PhysicsPanelActive && CheckCollisionPointRec(GetMousePosition(), Rectangle{ state.anchor02.x, state.anchor02.y, 304, 664 });
+		if (!mouseOverGui)
 		{
-			Body body;
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ||
+				(IsKeyDown(KEY_LEFT_CONTROL) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)))
+			{
+				AddBody(world);
+			}
 
-			body.bodyType = (BodyType)state.BodyTypeActive;//(IsKeyDown(KEY_LEFT_ALT)) ? BodyType::Static : BodyType::Dynamic;
-
-			body.position = GetMousePosition();
-			// get random unit circle vector
-			float angle = GetRandomFloat() * (2 * PI);
-			Vector2 direction;
-			direction.x = cosf(angle);
-			direction.y = sinf(angle);
-
-			body.AddForce(direction * (50.0f + (GetRandomFloat() * 500)), ForceMode::VelocityChange);
-			
-			body.size = 5.0f + (GetRandomFloat() * 30.0f);
-			body.restitution = 0.5f + (GetRandomFloat() * 0.5f);
-			body.mass = body.size;
-			body.inverseMass = (body.bodyType == BodyType::Static) ? 0 : 1.0f / body.mass;
-			body.gravityScale = 1.0f;
-			body.damping = 0.1f;
-
-			world.AddBody(body);
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && IsKeyDown(KEY_LEFT_SHIFT))
+			{
+				AddEffector(world);
+			}
 		}
 
 		// UPDATE
@@ -134,4 +124,38 @@ int main ()
 	// destroy the window and cleanup the OpenGL context
 	CloseWindow();
 	return 0;
+}
+
+void AddBody(World& world)
+{
+	Body body;
+
+	body.bodyType = (BodyType)state.BodyTypeActive;
+
+	body.position = GetMousePosition();
+	// get random unit circle vector
+	float angle = GetRandomFloat() * (2 * PI);
+	Vector2 direction;
+	direction.x = cosf(angle);
+	direction.y = sinf(angle);
+
+	body.AddForce((direction * state.BodyVelocityValue), ForceMode::VelocityChange);
+
+	body.size = state.BodySizeValue;
+	body.restitution = state.BodyRestitutionValue;
+	body.mass = body.size * state.BodyMassValue;
+	body.inverseMass = (body.bodyType == BodyType::Static) ? 0 : 1.0f / body.mass;
+	body.gravityScale = state.BodyGravityValue;
+	body.damping = state.BodyDampingValue;
+
+	world.AddBody(body);
+}
+
+void AddEffector(World& world)
+{
+	//world.AddEffector(new PointEffector(Vector2{ 300, 200 }, 200, -30000.0f));
+//world.AddEffector(new DragEffector(Vector2{ 300, 600 }, 200, 40.0f));
+//world.AddEffector(new AreaEffector(Vector2{ 900, 200 }, 200, 0,30000.0f));
+//world.AddEffector(new GravitationEffector(Vector2{ 900, 600 }, 200, 30000.0f));
+
 }
