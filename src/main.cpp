@@ -78,12 +78,14 @@ int main ()
 			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ||
 				(IsKeyDown(KEY_LEFT_CONTROL) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)))
 			{
-				AddBody(world);
-			}
-
-			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && IsKeyDown(KEY_LEFT_SHIFT))
-			{
-				AddEffector(world);
+				if (IsKeyDown(KEY_LEFT_SHIFT))
+				{
+					AddEffector(world);
+				}
+				else
+				{
+					AddBody(world);
+				}
 			}
 		}
 
@@ -153,9 +155,25 @@ void AddBody(World& world)
 
 void AddEffector(World& world)
 {
-	//world.AddEffector(new PointEffector(Vector2{ 300, 200 }, 200, -30000.0f));
-//world.AddEffector(new DragEffector(Vector2{ 300, 600 }, 200, 40.0f));
-//world.AddEffector(new AreaEffector(Vector2{ 900, 200 }, 200, 0,30000.0f));
-//world.AddEffector(new GravitationEffector(Vector2{ 900, 600 }, 200, 30000.0f));
+	Vector2 position = GetMousePosition();
 
+	Effector* effector = nullptr;
+	switch ((EffectorType)state.EffectorTypeActive)
+	{
+	case EffectorType::Gravitation:
+		effector = new GravitationEffector(position, state.EffectorSizeValue, state.EffectorForceValue * 10000.0f);
+		break;
+	case EffectorType::Point:
+		effector = new PointEffector(position, state.EffectorSizeValue, state.EffectorForceValue * 10000.0f);
+
+		break;
+	case EffectorType::Area:
+		effector = new AreaEffector(position, state.EffectorSizeValue, state.EffectorAngleValue, state.EffectorForceValue * 10000.0f);
+		break;
+	case EffectorType::Drag:
+		effector = new DragEffector(position, state.EffectorSizeValue, state.EffectorForceValue);
+		break;
+	}
+
+	if (effector) world.AddEffector(effector);
 }

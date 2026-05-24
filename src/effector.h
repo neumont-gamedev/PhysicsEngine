@@ -2,6 +2,14 @@
 #include "body.h"
 #include <vector>
 
+enum class EffectorType
+{
+	Gravitation,
+	Point,
+	Area,
+	Drag
+};
+
 class Effector
 {
 public:
