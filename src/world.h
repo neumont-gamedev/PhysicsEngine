@@ -21,14 +21,17 @@ public:
 	std::vector<Body>& GetBodies() { return bodies; }
 	const std::vector<Body>& GetBodies() const { return bodies; }
 
-	Body* GetBodyIntersect(const Vector2& position);
+	Body* GetBodyIntersect(Vector2 position);
 
 	static void SetGravity(Vector2 newgravity) { gravity = newgravity; }
+	void SetBounds(Vector2 min, Vector2 max) { boundsMin = min; boundsMax = max; }
 
 private:
 	void UpdateCollision();
 
 private:
+	Vector2 boundsMin{ -10.0f, -5.0f };
+	Vector2 boundsMax{  10.0f,  5.0f };
 	static Vector2 gravity;
 
 	std::vector<Body> bodies;

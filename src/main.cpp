@@ -10,10 +10,12 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "random.h"
 #include "integrator.h"
 #include "world.h"
+#include "world_camera.h"
 #include "point_effector.h"
 #include "gravitation_effector.h"
 #include "area_effector.h"
 #include "drag_effector.h"
+#include "spring.h"
 
 #include "raylib.h"
 #include "raymath.h"
@@ -31,10 +33,9 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include <string>
 
 GuiPhysicsState state;
-//GuiLoadStyle("raygui/styles/jungle/style_jungle.rgs");
 
-void AddBody(World& world);
-void AddEffector(World& world);
+void AddBody(World& world, WorldCamera& camera);
+void AddEffector(World& world, WorldCamera& camera);
 
 int main ()
 {
@@ -48,6 +49,7 @@ int main ()
 
 	// Get GUI state
 	state = InitGuiPhysics();
+	GuiLoadStyle("raygui/styles/dark/style_dark.rgs");
 
 	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
 	SearchAndSetResourceDir("resources");
@@ -56,7 +58,11 @@ int main ()
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
 
 	World world;
+	WorldCamera world_camera(Vector2{ GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f }, 5);
+	world.SetBounds(world_camera.ScreenToWorld({ 0, (float)GetScreenHeight() }), world_camera.ScreenToWorld({ (float)GetScreenWidth(), 0 }));
 
+	Body* selectedBody = nullptr;
+	Body* connectedBody = nullptr;
 
 	float timeAccum = 0.0f;
 	bool simulate = true;
@@ -80,11 +86,29 @@ int main ()
 			{
 				if (IsKeyDown(KEY_LEFT_SHIFT))
 				{
-					AddEffector(world);
+					AddEffector(world, world_camera);
 				}
 				else
 				{
-					AddBody(world);
+					AddBody(world, world_camera);
+				}
+			}
+
+			if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+			{
+				selectedBody = world.GetBodyIntersect(world_camera.ScreenToWorld(GetMousePosition()));
+			}
+
+			// spring
+			if (selectedBody)
+			{
+				if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && IsKeyDown(KEY_LEFT_CONTROL))
+				{
+					Vector2 position = world_camera.ScreenToWorld(GetMousePosition());
+					Vector2 force = Spring::GetSpringForce(position, selectedBody->position, 1.0f, 3.0f);
+					selectedBody->AddForce(force);
+
+					DrawLineV(world_camera.WorldToScreen(position), world_camera.WorldToScreen(selectedBody->position), WHITE);
 				}
 			}
 		}
@@ -102,18 +126,29 @@ int main ()
 
 		// DRAW
 		BeginDrawing();
-
+		
 		// Setup the back buffer for drawing (clear color and depth buffers)
-		ClearBackground(WHITE);
+		ClearBackground(BLACK);
 
 		// draw some text using the default font
 		std::string fpsText = "FPS: ";
 		fpsText += std::to_string(GetFPS());
-		DrawText(fpsText.c_str(), 40, 40, 20, WHITE);
+		DrawText(fpsText.c_str(), GetScreenWidth() - 120, 40, 20, WHITE);
+				
+		world_camera.Begin(); // set world camera
+		world.Draw(); // draw using world camera transform
+		DrawCircleLinesV(world_camera.ScreenToWorld(GetMousePosition()), state.BodySizeValue, BLUE);
+		
+		if (selectedBody)
+		{
+			DrawCircleLinesV(selectedBody->position, selectedBody->size * 1.05f, RED);
+		}
 
-		world.Draw();
+		
+		world_camera.End(); // remove world camera
 
 		GuiPhysics(&state);
+
 
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
 		EndDrawing();
@@ -128,13 +163,12 @@ int main ()
 	return 0;
 }
 
-void AddBody(World& world)
+void AddBody(World& world, WorldCamera& camera)
 {
 	Body body;
 
 	body.bodyType = (BodyType)state.BodyTypeActive;
-
-	body.position = GetMousePosition();
+	body.position = camera.ScreenToWorld(GetMousePosition());
 	// get random unit circle vector
 	float angle = GetRandomFloat() * (2 * PI);
 	Vector2 direction;
@@ -153,25 +187,26 @@ void AddBody(World& world)
 	world.AddBody(body);
 }
 
-void AddEffector(World& world)
+void AddEffector(World& world, WorldCamera& camera)
 {
-	Vector2 position = GetMousePosition();
+	Vector2 position = camera.ScreenToWorld(GetMousePosition());
+	// using body size instead of effect body size
+	float size = state.BodySizeValue;
 
 	Effector* effector = nullptr;
 	switch ((EffectorType)state.EffectorTypeActive)
 	{
 	case EffectorType::Gravitation:
-		effector = new GravitationEffector(position, state.EffectorSizeValue, state.EffectorForceValue * 10000.0f);
+		effector = new GravitationEffector(position, size, state.EffectorForceValue);
 		break;
 	case EffectorType::Point:
-		effector = new PointEffector(position, state.EffectorSizeValue, state.EffectorForceValue * 10000.0f);
-
+		effector = new PointEffector(position, size, state.EffectorForceValue);
 		break;
 	case EffectorType::Area:
-		effector = new AreaEffector(position, state.EffectorSizeValue, state.EffectorAngleValue, state.EffectorForceValue * 10000.0f);
+		effector = new AreaEffector(position, size, state.EffectorAngleValue, state.EffectorForceValue);
 		break;
 	case EffectorType::Drag:
-		effector = new DragEffector(position, state.EffectorSizeValue, state.EffectorForceValue);
+		effector = new DragEffector(position, size, state.EffectorForceValue);
 		break;
 	}
 

@@ -17,4 +17,6 @@ void AreaEffector::Draw()
 {
 	Effector::Draw();
 	DrawCircleV(position, size, Fade(GREEN, 0.2f));
+	Vector2 direction = Vector2{ cosf(angle * DEG2RAD), sinf(angle * DEG2RAD) };
+	DrawLineV(position, position + direction * size, WHITE);
 }

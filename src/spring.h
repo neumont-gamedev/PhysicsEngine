@@ -1,28 +1,29 @@
 #pragma once
 #include "raylib.h"
+#include "raymath.h"
+
+struct Body;
 
 class Spring
 {
 public:
-	struct Body* bodyA;
-	struct Body* bodyB;
+	Body* bodyA;
+	Body* bodyB;
+
 	float restLength;
-	float k; // stiffness
-	float damping;
+	float stiffness;
 
 public:
 	Spring() = default;
-	Spring(Body* bodyA, Body* bodyB, float restLength, float k, float damping = 0) :
+	Spring(Body* bodyA, Body* bodyB, float restLength, float stiffness = 1) :
 		bodyA{ bodyA },
 		bodyB{ bodyB },
 		restLength{ restLength },
-		k{ k },
-		damping{ damping }
-	{
-	}
+		stiffness{ stiffness }
+	{ }
 
-	void Apply(float kMultiplier = 1);
+	void Apply(float multiplier = 1);
 	void Draw();
 
-	static Vector2 GetSpringForce(Vector2 positionA, Vector2 positionB, float restLength, float k);
+	static Vector2 GetSpringForce(Vector2 positionA, Vector2 positionB, float restLength, float stiffness = 1);
 };
