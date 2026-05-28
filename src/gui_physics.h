@@ -118,7 +118,7 @@ GuiPhysicsState InitGuiPhysics(void)
     GuiPhysicsState state = { 0 };
 
     state.anchor01 = (Vector2){ 1256, 728 };
-    state.anchor02 = (Vector2){ 24, 40 };
+    state.anchor02 = (Vector2){ 10, 10 };
     
     state.PhysicsPanelActive = true;
     state.BodyMassValue = 1.0f;
@@ -138,7 +138,7 @@ GuiPhysicsState InitGuiPhysics(void)
     state.EffectorForceValue = 30.0f;
     state.EffectorAngleValue = 0.0f;
     state.SimulateActive = true;
-    state.GravityValue = 9.81f;
+    state.GravityValue = 0.0f;
     state.FPSValue = 60.0f;
     state.BodyVelocityValue = 40.0f;
     state.SpringMultiplierValue = 1.0f;

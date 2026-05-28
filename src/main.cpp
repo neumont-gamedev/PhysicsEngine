@@ -102,13 +102,30 @@ int main ()
 			// spring
 			if (selectedBody)
 			{
-				if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && IsKeyDown(KEY_LEFT_CONTROL))
+				if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 				{
 					Vector2 position = world_camera.ScreenToWorld(GetMousePosition());
-					Vector2 force = Spring::GetSpringForce(position, selectedBody->position, 1.0f, 3.0f);
-					selectedBody->AddForce(force);
-
+					if (IsKeyDown(KEY_LEFT_CONTROL))
+					{
+						Vector2 force = Spring::GetSpringForce(position, selectedBody->position, 1.0f, 3.0f);
+						selectedBody->AddForce(force);
+					}
+					else
+					{
+						connectedBody = world.GetBodyIntersect(world_camera.ScreenToWorld(GetMousePosition()));
+					}
 					DrawLineV(world_camera.WorldToScreen(position), world_camera.WorldToScreen(selectedBody->position), WHITE);
+				}
+				else
+				{
+					if (selectedBody && connectedBody)
+					{
+						float distance = Vector2Distance(selectedBody->position, connectedBody->position);
+						world.AddSpring(*selectedBody, *connectedBody, distance, state.SpringStiffnessValue);
+					}
+
+					selectedBody = nullptr;
+					connectedBody = nullptr;
 				}
 			}
 		}
@@ -139,12 +156,9 @@ int main ()
 		world.Draw(); // draw using world camera transform
 		DrawCircleLinesV(world_camera.ScreenToWorld(GetMousePosition()), state.BodySizeValue, BLUE);
 		
-		if (selectedBody)
-		{
-			DrawCircleLinesV(selectedBody->position, selectedBody->size * 1.05f, RED);
-		}
-
-		
+		if (selectedBody) DrawCircleLinesV(selectedBody->position, selectedBody->size * 1.05f, RED);
+		if (connectedBody) DrawCircleLinesV(connectedBody->position, connectedBody->size * 1.05f, GREEN);
+				
 		world_camera.End(); // remove world camera
 
 		GuiPhysics(&state);

@@ -14,7 +14,7 @@ void World::Step(float dt)
 	for (auto& effector : effectors) effector->Apply(bodies);
 
 	// spring
-	for (auto& spring : springs) spring->Apply(100.0f);
+	for (auto& spring : springs) spring->Apply(1.0f);
 
 	// integrator
 	for (auto& body : bodies) if (body.bodyType == BodyType::Dynamic) SemiImplicitEuler(body, dt);
@@ -26,6 +26,10 @@ void World::Step(float dt)
 
 void World::Draw()
 {
+	// draw a grid of lines with each grid being one unit in size
+	DrawLineV(Vector2{ 0, boundsMin.y }, Vector2{ 0, boundsMax.y }, GRAY);
+	DrawLineV(Vector2{ boundsMin.x, 0 }, Vector2{ boundsMax.x, 0 }, GRAY);
+
 	for (auto& effector : effectors) effector->Draw();
 	for (const auto& body : bodies) body.Draw();
 	for (auto& spring : springs) spring->Draw();
