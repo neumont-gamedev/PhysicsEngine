@@ -77,6 +77,7 @@ int main ()
 		if (IsKeyPressed(KEY_TAB)) state.PhysicsPanelActive = !state.PhysicsPanelActive;
 
 		World::SetGravity(Vector2{ 0.0f, state.GravityValue });
+		World::SetSpringMultiplier(state.SpringMultiplierValue);
 
 		bool mouseOverGui = state.PhysicsPanelActive && CheckCollisionPointRec(GetMousePosition(), Rectangle{ state.anchor02.x, state.anchor02.y, 304, 664 });
 		if (!mouseOverGui)
@@ -120,8 +121,8 @@ int main ()
 				{
 					if (selectedBody && connectedBody)
 					{
-						float distance = Vector2Distance(selectedBody->position, connectedBody->position);
-						world.AddSpring(*selectedBody, *connectedBody, distance, state.SpringStiffnessValue);
+						float distance = (state.SpringAutoLengthChecked) ? Vector2Distance(selectedBody->position, connectedBody->position) : state.SpringLengthValue;
+						world.AddSpring(*selectedBody, *connectedBody, distance, state.SpringStiffnessValue, state.SpringDampingValue);
 					}
 
 					selectedBody = nullptr;
@@ -154,7 +155,7 @@ int main ()
 				
 		world_camera.Begin(); // set world camera
 		world.Draw(); // draw using world camera transform
-		DrawCircleLinesV(world_camera.ScreenToWorld(GetMousePosition()), state.BodySizeValue, BLUE);
+		DrawCircleLinesV(world_camera.ScreenToWorld(GetMousePosition()), state.BodySizeValue * 0.5f, BLUE);
 		
 		if (selectedBody) DrawCircleLinesV(selectedBody->position, selectedBody->size * 1.05f, RED);
 		if (connectedBody) DrawCircleLinesV(connectedBody->position, connectedBody->size * 1.05f, GREEN);
@@ -191,12 +192,13 @@ void AddBody(World& world, WorldCamera& camera)
 
 	body.AddForce((direction * state.BodyVelocityValue), ForceMode::VelocityChange);
 
-	body.size = state.BodySizeValue;
+	body.size = state.BodySizeValue * 0.5f;
 	body.restitution = state.BodyRestitutionValue;
 	body.mass = body.size * state.BodyMassValue;
 	body.inverseMass = (body.bodyType == BodyType::Static) ? 0 : 1.0f / body.mass;
 	body.gravityScale = state.BodyGravityValue;
 	body.damping = state.BodyDampingValue;
+	body.color = ColorFromHSV(GetRandomFloat(360.0f), 1.0f, 1.0f);
 
 	world.AddBody(body);
 }
@@ -205,7 +207,7 @@ void AddEffector(World& world, WorldCamera& camera)
 {
 	Vector2 position = camera.ScreenToWorld(GetMousePosition());
 	// using body size instead of effect body size
-	float size = state.BodySizeValue;
+	float size = state.BodySizeValue * 0.5f;
 
 	Effector* effector = nullptr;
 	switch ((EffectorType)state.EffectorTypeActive)

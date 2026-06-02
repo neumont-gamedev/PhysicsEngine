@@ -129,18 +129,18 @@ GuiPhysicsState InitGuiPhysics(void)
     state.BodyTypeEditMode = false;
     state.BodyTypeActive = 0;
     state.SpringStiffnessValue = 15.0f;
-    state.SpringDampingValue = 0.0f;
-    state.SpringAutoLengthChecked = false;
-    state.SpringLengthValue = 10.0f;
+    state.SpringDampingValue = 2.0f;
+    state.SpringAutoLengthChecked = true;
+    state.SpringLengthValue = 2.0f;
     state.EffectorTypeEditMode = false;
     state.EffectorTypeActive = 0;
-    state.EffectorSizeValue = 50.0f;
+    state.EffectorSizeValue = 1.0f;
     state.EffectorForceValue = 30.0f;
     state.EffectorAngleValue = 0.0f;
     state.SimulateActive = true;
     state.GravityValue = 0.0f;
     state.FPSValue = 60.0f;
-    state.BodyVelocityValue = 40.0f;
+    state.BodyVelocityValue = 5.0f;
     state.SpringMultiplierValue = 1.0f;
     state.WindowBox023Active = true;
 

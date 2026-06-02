@@ -12,14 +12,16 @@ public:
 
 	float restLength;
 	float stiffness;
+	float damping;
 
 public:
 	Spring() = default;
-	Spring(Body* bodyA, Body* bodyB, float restLength, float stiffness = 1) :
+	Spring(Body* bodyA, Body* bodyB, float restLength, float stiffness = 1, float damping = 1) :
 		bodyA{ bodyA },
 		bodyB{ bodyB },
 		restLength{ restLength },
-		stiffness{ stiffness }
+		stiffness{ stiffness },
+		damping{ damping }
 	{ }
 
 	void Apply(float multiplier = 1);

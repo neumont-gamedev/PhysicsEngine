@@ -1,9 +1,25 @@
 #include "spring.h"
 #include "body.h"
+#include "raymath.h"
 
 void Spring::Apply(float multiplier)
 {
 	Vector2 force = GetSpringForce(bodyA->position, bodyB->position, restLength, stiffness * multiplier);
+
+	// dampen spring
+	// direction vector from body A to body B (spring axis)
+	Vector2 direction = bodyB->position - bodyA->position;
+	Vector2 ndirection = Vector2Normalize(direction);
+
+	// relative velocity of bodies
+	Vector2 rv = bodyB->velocity - bodyA->velocity;
+
+	// higher damping when moving along spring axis, less when moving perpendicular
+	float dampingFactor = Vector2DotProduct(ndirection, rv) * damping;
+
+	// damping force opposes motion along spring axis
+	Vector2 dampingForce = ndirection * dampingFactor;
+	force -= dampingForce;
 
 	bodyA->AddForce(force * -1.0f);
 	bodyB->AddForce(force);
